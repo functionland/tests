@@ -1,15 +1,17 @@
-module main.go
-
-go 1.19
+module github.com/libp2p/go-libp2p-raft
 
 require (
 	github.com/functionland/go-fula v0.4.6
+	github.com/hashicorp/go-hclog v1.3.0
 	github.com/hashicorp/raft v1.3.10
-	github.com/ipfs/go-cid v0.3.2
+	github.com/ipfs/go-cid v0.2.0
+	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/ipld/go-ipld-prime v0.18.0
 	github.com/libp2p/go-libp2p v0.22.0
-	github.com/libp2p/go-libp2p-raft v0.3.0
-	github.com/multiformats/go-multicodec v0.6.0
+	github.com/libp2p/go-libp2p-consensus v0.0.1
+	github.com/libp2p/go-libp2p-gostream v0.5.0
+	github.com/multiformats/go-multicodec v0.5.0
+	github.com/ugorji/go/codec v1.1.13
 )
 
 require (
@@ -37,12 +39,11 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/hashicorp/go-hclog v1.3.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.0.0 // indirect
 	github.com/hashicorp/go-msgpack v0.5.5 // indirect
+	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/huin/goupnp v1.0.3 // indirect
-	github.com/ipfs/go-log/v2 v2.5.1 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/jbenet/go-temp-err-catcher v0.1.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
@@ -53,9 +54,7 @@ require (
 	github.com/libp2p/go-cidranger v1.1.0 // indirect
 	github.com/libp2p/go-flow-metrics v0.1.0 // indirect
 	github.com/libp2p/go-libp2p-asn-util v0.2.0 // indirect
-	github.com/libp2p/go-libp2p-consensus v0.0.1 // indirect
 	github.com/libp2p/go-libp2p-core v0.16.1 // indirect
-	github.com/libp2p/go-libp2p-gostream v0.5.0 // indirect
 	github.com/libp2p/go-msgio v0.2.0 // indirect
 	github.com/libp2p/go-nat v0.1.0 // indirect
 	github.com/libp2p/go-netroute v0.2.0 // indirect
@@ -100,7 +99,6 @@ require (
 	github.com/smartystreets/assertions v1.13.0 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
-	github.com/ugorji/go/codec v1.1.13 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.22.0 // indirect
@@ -114,3 +112,5 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	lukechampine.com/blake3 v1.1.7 // indirect
 )
+
+go 1.19
