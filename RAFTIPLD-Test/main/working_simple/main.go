@@ -76,10 +76,12 @@ func main() {
 		Peer:      "0",
 		Signature: []byte("sig1"),
 	}
-
-	consensus1 := libp2praft.NewConsensus(first)
-	consensus2 := libp2praft.NewConsensus(first)
-	consensus3 := libp2praft.NewConsensus(first)
+	type raftState struct {
+		Value int
+	}
+	consensus1 := libp2praft.NewConsensus(&raftState{3})
+	consensus2 := libp2praft.NewConsensus(&raftState{3})
+	consensus3 := libp2praft.NewConsensus(&raftState{3})
 
 	// Create LibP2P transports Raft
 	transport1, err := libp2praft.NewLibp2pTransport(peer1, time.Minute)
@@ -203,8 +205,15 @@ func main() {
 
 			// CommitState() blocks until the state has been
 			// agreed upon by everyone
+			/*cidstring, err := fmt.Printf("link: %s", last)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}*/
 
-			agreedState, err := c.CommitState((last))
+			a := &raftState{nUpdates * 2}
+
+			agreedState, err := c.CommitState(a)
 			if err != nil {
 				fmt.Println(err)
 				continue
@@ -218,7 +227,7 @@ func main() {
 
 			nUpdates++
 
-			agreedRaftState := agreedState.(*event.Event)
+			agreedRaftState := agreedState.(*raftState)
 			if nUpdates%200 == 0 {
 				stringagreedRaftState, err := json.Marshal(agreedRaftState)
 				if err != nil {
@@ -268,9 +277,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	finalRaftState1 := finalState1.(*event.Event)
-	finalRaftState2 := finalState2.(*event.Event)
-	finalRaftState3 := finalState3.(*event.Event)
+	finalRaftState1 := finalState1.(*raftState)
+	finalRaftState2 := finalState2.(*raftState)
+	finalRaftState3 := finalState3.(*raftState)
 
 	stringOutput1, err1 := json.Marshal(finalRaftState1)
 	if err1 != nil {
