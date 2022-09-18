@@ -35,6 +35,9 @@ var lp = cidlink.LinkPrototype{
 
 func main() {
 	fmt.Println("start")
+	type raftState struct {
+		Value string
+	}
 
 	// This example shows how to use go-libp2p-raft to create a cluster
 	// which agrees on a State. In order to do it, it defines a state,
@@ -73,13 +76,13 @@ func main() {
 	// cluster.
 	first := &event.Event{
 		Version:   event.Version0,
-		Peer:      "0",
-		Signature: []byte("sig1"),
+		Peer:      "",
+		Signature: []byte(""),
 	}
 
-	consensus1 := libp2praft.NewConsensus(first)
-	consensus2 := libp2praft.NewConsensus(first)
-	consensus3 := libp2praft.NewConsensus(first)
+	consensus1 := libp2praft.NewConsensus(&raftState{""})
+	consensus2 := libp2praft.NewConsensus(&raftState{""})
+	consensus3 := libp2praft.NewConsensus(&raftState{""})
 
 	// Create LibP2P transports Raft
 	transport1, err := libp2praft.NewLibp2pTransport(peer1, time.Minute)
@@ -180,7 +183,7 @@ func main() {
 	updateState := func(c *libp2praft.Consensus) {
 		nUpdates := 0
 		for {
-			if nUpdates >= 3 {
+			if nUpdates >= 5 {
 				break
 			}
 
@@ -191,7 +194,8 @@ func main() {
 			}
 
 			n := bindnode.Wrap(last, event.Prototypes.Event.Type())
-			if l, err := ls.Store(ipld.LinkContext{Ctx: ctx}, lp, n); err != nil {
+			l, err := ls.Store(ipld.LinkContext{Ctx: ctx}, lp, n)
+			if err != nil {
 				fmt.Println(err)
 			} else {
 				newState.Previous = l
@@ -204,28 +208,28 @@ func main() {
 			// CommitState() blocks until the state has been
 			// agreed upon by everyone
 
-			agreedState, err := c.CommitState((n))
+			agreedState, err := c.CommitState(&raftState{l.String()})
 			if err != nil {
 				fmt.Println(err)
-				continue
+				//continue
 			}
 			if agreedState == nil {
 				fmt.Println("agreedState is nil: commited on a non-leader?")
-				continue
+				//continue
 			} else {
-				fmt.Println("agreedState is commited")
+				fmt.Printf("\n\nagreedState is commited %s", l.String())
 			}
 
 			nUpdates++
 
-			agreedRaftState := agreedState.(*event.Event)
-			if nUpdates%200 == 0 {
+			agreedRaftState := agreedState.(*raftState)
+			if nUpdates == 5 {
 				stringagreedRaftState, err := json.Marshal(agreedRaftState)
 				if err != nil {
 					fmt.Println(err)
 					return
 				}
-				fmt.Printf("Performed %d updates. Current state value: %s\n", nUpdates, stringagreedRaftState)
+				fmt.Printf("\n\nPerformed %d updates. Current state value: %s\n", nUpdates, stringagreedRaftState)
 			}
 		}
 	}
@@ -236,11 +240,14 @@ func main() {
 	// Run the 1000 updates on the leader
 	// Barrier() will wait until updates have been applied
 	if actor1.IsLeader() {
+		fmt.Println("\n\n1 is leader\n\n")
 		updateState(consensus1)
 	} else if actor2.IsLeader() {
 		updateState(consensus2)
+		fmt.Println("\n\n2 is leader\n\n")
 	} else if actor3.IsLeader() {
 		updateState(consensus3)
+		fmt.Println("\n\n3 is leader\n\n")
 	}
 
 	// Wait for updates to arrive.
@@ -268,9 +275,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	finalRaftState1 := finalState1.(*event.Event)
-	finalRaftState2 := finalState2.(*event.Event)
-	finalRaftState3 := finalState3.(*event.Event)
+	finalRaftState1 := finalState1.(*raftState)
+	finalRaftState2 := finalState2.(*raftState)
+	finalRaftState3 := finalState3.(*raftState)
 
 	stringOutput1, err1 := json.Marshal(finalRaftState1)
 	if err1 != nil {
