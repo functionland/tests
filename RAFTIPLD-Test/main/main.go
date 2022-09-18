@@ -204,7 +204,7 @@ func main() {
 			// CommitState() blocks until the state has been
 			// agreed upon by everyone
 
-			agreedState, err := c.CommitState((last))
+			agreedState, err := c.CommitState((n))
 			if err != nil {
 				fmt.Println(err)
 				continue
