@@ -11,7 +11,6 @@ import (
 	public "github.com/functionland/wnfs-go/public"
 	blockservice "github.com/ipfs/go-blockservice"
 	cid "github.com/ipfs/go-cid"
-	require "github.com/stretchr/testify/require"
 )
 
 type fileSystem struct {
@@ -166,22 +165,21 @@ func NewEmptyFS(ctx context.Context, bserv blockservice.BlockService, rs ratchet
 }
 
 func main() {
-	require := require.New()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	store := newMemTestStore(ctx)
 	rs := ratchet.NewMemStore(ctx)
 	fsys, err := NewEmptyFS(ctx, store.Blockservice(), rs, testRootKey)
-	require.Nil(err)
+	if err != nil {
+		println("oh")
+	}
 
 	pathStr := "public/foo/hello.txt"
 	fileContents := []byte("hello!")
 	f := base.NewMemfileBytes("hello.txt", fileContents)
 
 	err = fsys.Write(pathStr, f)
-	require.Nil(err)
 	_, err = fsys.Commit()
-	require.Nil(err)
 
 }
