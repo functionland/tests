@@ -4,13 +4,13 @@ import (
 	"context"
 	"io/fs"
 
+	base "github.com/functionland/wnfs-go/base"
+	mockblocks "github.com/functionland/wnfs-go/mockblocks"
+	private "github.com/functionland/wnfs-go/private"
+	ratchet "github.com/functionland/wnfs-go/private/ratchet"
+	public "github.com/functionland/wnfs-go/public"
 	blockservice "github.com/ipfs/go-blockservice"
 	cid "github.com/ipfs/go-cid"
-	base "github.com/qri-io/wnfs-go/base"
-	mockblocks "github.com/qri-io/wnfs-go/mockblocks"
-	private "github.com/qri-io/wnfs-go/private"
-	ratchet "github.com/qri-io/wnfs-go/private/ratchet"
-	public "github.com/qri-io/wnfs-go/public"
 	require "github.com/stretchr/testify/require"
 )
 
