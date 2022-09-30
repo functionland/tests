@@ -157,9 +157,6 @@ func NewEmptyFS(ctx context.Context, bserv blockservice.BlockService, rs ratchet
 	if _, err := root.Private.Put(); err != nil {
 		return nil, err
 	}
-	if _, err := root.Put(); err != nil {
-		return nil, err
-	}
 
 	return fs, nil
 }
