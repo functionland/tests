@@ -9,7 +9,6 @@ import (
 	mockblocks "github.com/functionland/wnfs-go/mockblocks"
 	private "github.com/functionland/wnfs-go/private"
 	ratchet "github.com/functionland/wnfs-go/private/ratchet"
-	public "github.com/functionland/wnfs-go/public"
 	cmp "github.com/google/go-cmp/cmp"
 )
 
@@ -32,16 +31,16 @@ type fataler interface {
 	Fatal(args ...interface{})
 }
 
-func newMemTestStore(ctx context.Context) public.Store {
-	return public.NewStore(ctx, mockblocks.NewOfflineMemBlockservice())
-}
-func newFileTestStore(ctx context.Context) (st public.Store, cleanup func()) {
+func newFileTestStorePrivate(ctx context.Context) (st private.Store, cleanup func()) {
 	bserv, cleanup, err := mockblocks.NewOfflineFileBlockservice("test")
 	if err != nil {
 		println(err.Error())
 	}
-
-	store := public.NewStore(ctx, bserv)
+	rs := ratchet.NewMemStore(ctx)
+	store, err := private.NewStore(ctx, bserv, rs)
+	if err != nil {
+		println(err)
+	}
 	return store, cleanup
 }
 
@@ -50,7 +49,7 @@ func main() {
 	defer cancel()
 
 	rs := ratchet.NewMemStore(ctx)
-	store, cleanup := newFileTestStore(ctx)
+	store, cleanup := newFileTestStorePrivate(ctx)
 	defer cleanup()
 	fsys, err := wnfs.NewEmptyFS(ctx, store.Blockservice(), rs, testRootKey)
 	if err != nil {
