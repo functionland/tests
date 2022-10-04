@@ -4,8 +4,7 @@ go 1.19
 
 require (
 	github.com/functionland/wnfs-go v0.0.5
-	github.com/ipfs/go-cid v0.2.0
-	github.com/ipfs/go-ipfs-blockstore v1.2.0
+	github.com/google/go-cmp v0.5.7
 )
 
 require (
@@ -20,9 +19,11 @@ require (
 	github.com/ipfs/bbloom v0.0.4 // indirect
 	github.com/ipfs/go-block-format v0.0.3 // indirect
 	github.com/ipfs/go-blockservice v0.3.0 // indirect
+	github.com/ipfs/go-cid v0.2.0 // indirect
 	github.com/ipfs/go-cidutil v0.1.0 // indirect
 	github.com/ipfs/go-datastore v0.5.0 // indirect
 	github.com/ipfs/go-ds-flatfs v0.5.1 // indirect
+	github.com/ipfs/go-ipfs-blockstore v1.2.0 // indirect
 	github.com/ipfs/go-ipfs-chunker v0.0.5 // indirect
 	github.com/ipfs/go-ipfs-ds-help v1.1.0 // indirect
 	github.com/ipfs/go-ipfs-exchange-interface v0.1.0 // indirect

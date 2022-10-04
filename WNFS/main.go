@@ -10,6 +10,7 @@ import (
 	private "github.com/functionland/wnfs-go/private"
 	ratchet "github.com/functionland/wnfs-go/private/ratchet"
 	public "github.com/functionland/wnfs-go/public"
+	cmp "github.com/google/go-cmp/cmp"
 )
 
 var testRootKey Key = [32]byte{
@@ -72,6 +73,16 @@ func main() {
 		println(err.Error())
 	}
 	fmt.Printf("%s\n", string(gotFileContents))
+
+	if diff := cmp.Diff(fileContents, gotFileContents); diff != "" {
+		fmt.Printf("\nresult mismatch. (-want +got):\n%s", diff)
+	}
+
+	ls, err := fsys.Ls("private/foo")
+	if err != nil {
+		println(err.Error())
+	}
+	fmt.Printf("\nFolder structure: %s", ls)
 
 	println("\nEnd")
 
