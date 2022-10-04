@@ -55,6 +55,7 @@ func main() {
 	if err != nil {
 		println(err)
 	}
+	fmt.Printf("wnfs root CID: %s\n", fsys.Cid())
 
 	pathStr := "private/foo/hello.txt"
 	fileContents := []byte("hello!")
@@ -62,8 +63,9 @@ func main() {
 
 	err1 := fsys.Write(pathStr, f)
 	if err1 != nil {
-		fmt.Printf("Erro happened %s", err1.Error())
+		fmt.Printf("Erro happened %s\n", err1.Error())
 	}
+	fmt.Printf("wnfs new root CID: %s\n", fsys.Cid())
 
 	gotFileContents, err := fsys.Cat(pathStr)
 	if err != nil {
@@ -71,6 +73,6 @@ func main() {
 	}
 	fmt.Printf("%s\n", string(gotFileContents))
 
-	println("End")
+	println("\nEnd")
 
 }
