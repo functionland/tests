@@ -166,7 +166,9 @@ func newFileTestStorePrivate(ctx context.Context, p *Peer) (st private.Store) {
 		p.exch = bswap
 	}
 
-	/*bserv, cleanup, err := mockblocks.NewOfflineFileBlockservice("test", bswap)
+	/*bserv, cleanup, err := mockblocks.NewOfflineFileBlockservice("test")
+	println(cleanup)
+	println(p)
 	if err != nil {
 		println(err.Error())
 	}*/
@@ -212,8 +214,12 @@ func main() {
 	if err1 != nil {
 		fmt.Printf("Erro happened %s\n", err1.Error())
 	}
-	fsys.Commit()
-	fmt.Printf("wnfs new root CID: %s\n", fsys.Cid().String())
+	res, err := fsys.Commit()
+	if err != nil {
+		println(err)
+	}
+	fmt.Printf("wnfs new root CID from fsys: %s\n", fsys.Cid().String())
+	fmt.Printf("wnfs new root CID from res: %s\n", res.Root)
 
 	gotFileContents, err := fsys.Cat(pathStr)
 	if err != nil {
@@ -232,6 +238,31 @@ func main() {
 		println(err.Error())
 	}
 	fmt.Printf("\nFolder structure: %s", ls)
+
+	privatename, errp := fsys.PrivateName()
+	if errp != nil {
+		println(errp.Error())
+	}
+	fmt.Printf("\nPrivate Name: %s=%s\n", *res.PrivateName, privatename)
+
+	fmt.Printf("\nRoot Key: %s\n", res.Root)
+
+	hamt, errh := wnfs.HAMTContents(ctx, store.Blockservice(), res.Root)
+	if errh != nil {
+		println(errh.Error())
+	}
+	fmt.Printf("\nHAMT Contents %s\n", hamt)
+
+	createdWNSF, errw := wnfs.FromCID(ctx, store.Blockservice(), rs, res.Root, *res.PrivateKey, *res.PrivateName)
+	if errw != nil {
+		println(errw.Error())
+	}
+
+	ls2, err2 := createdWNSF.Ls("private/foo")
+	if err2 != nil {
+		println(err2.Error())
+	}
+	fmt.Printf("\nRecreated Folder structure: %s", ls2)
 
 	println("\nEnd")
 
