@@ -187,12 +187,16 @@ func main() {
 	p1, cleanup := setupPeers(ctx)
 	store := newFileTestStorePrivate(ctx, p1)
 	//cleanup()
+
+	duration := time.Duration(10) * time.Second
+	time.Sleep(duration)
+
 	fsys, err := wnfs.NewEmptyFS(ctx, store.Blockservice(), rs, testRootKey)
 	if err != nil {
 		println(err)
 		cleanup()
 	}
-	fmt.Printf("wnfs root CID: %s\n", fsys.Cid())
+	fmt.Printf("wnfs root CID: %s\n", fsys.Cid().String())
 
 	ls_i, err_i := fsys.Ls("private")
 	if err_i != nil {
@@ -209,13 +213,15 @@ func main() {
 		fmt.Printf("Erro happened %s\n", err1.Error())
 	}
 	fsys.Commit()
-	fmt.Printf("wnfs new root CID: %s\n", fsys.Cid())
+	fmt.Printf("wnfs new root CID: %s\n", fsys.Cid().String())
 
 	gotFileContents, err := fsys.Cat(pathStr)
 	if err != nil {
 		println(err.Error())
 	}
 	fmt.Printf("file content: %s\n", string(gotFileContents))
+
+	//fmt.Printf("DAG content: %s\n", dag.Cid().Bytes())
 
 	if diff := cmp.Diff(fileContents, gotFileContents); diff != "" {
 		fmt.Printf("\nresult mismatch. (-want +got):\n%s", diff)
