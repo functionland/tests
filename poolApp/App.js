@@ -18,6 +18,8 @@ import {
   View,
 } from 'react-native';
 
+import * as pool from 'poolexample';
+
 import {
   Colors,
   DebugInstructions,
@@ -56,6 +58,7 @@ const Section = ({children, title}): Node => {
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const a = pool.ExamplePool_DiscoverPeersViaPubSub;
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
