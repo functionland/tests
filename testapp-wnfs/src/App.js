@@ -3,7 +3,7 @@ import './App.css';
 import {useEffect} from 'react';
 import { MemoryBlockStore } from 'ipfs-car/blockstore/memory' 
 import init, { PrivateDirectory, PrivateForest, Namefilter } from "fx-wnfs";
-import * as nacl from 'tweetnacl';
+var sjcl = require('randombytes');
 
 const cid = Uint8Array.from([
   1, 112, 18, 32, 195, 196, 115, 62, 200, 175, 253, 6, 207, 158, 159, 245, 15,
@@ -11,38 +11,33 @@ const cid = Uint8Array.from([
   57, 26,
 ]);
 const time = new Date();
-const rng= nacl;
+const rng = {randomBytes: sjcl};
 function App() {
     //
 
     const store = new MemoryBlockStore();
-    store.putBlock = store.put;
+    store.putBlock = (cid, data) => {
+      return store.put(cid, data);
+    }
+    store.getBlock = store.get;
     useEffect(() => {
        init().then(() => {
     
        
          const initialHamt = new PrivateForest();
-         const dir = new PrivateDirectory(new Namefilter(), new Date(), rng);
+         const dir = new PrivateDirectory(new Namefilter(), time, rng);
          const fetchData = async () => {
         //START
         console.log(dir);
-            var { rootDir, hamt } = await dir.mkdir(
-              ["pictures", "cats"],
-              true,
-              new Date(),
-              initialHamt,
-              store,
-              rng
-            );
-            var { rootDir, hamt } = await rootDir.write(
-              ["pictures", "cats", "tabby.png"],
-              cid,
-              time,
-              store
-            );
-            var { result } = await rootDir.ls(["pictures"], store);
-            
-            console.log(result);
+        var { rootDir, hamt } = await dir.mkdir(
+          ["pictures"],
+          true,
+          time,
+          initialHamt,
+          store,
+          rng
+        );
+
         //END
 
           }
