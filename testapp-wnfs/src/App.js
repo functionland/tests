@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import { MemoryBlockStore } from 'ipfs-car/blockstore/memory';
 import { MemoryBlockstore as Blockstore } from 'blockstore-core/memory';
 import { MemoryDatastore } from 'datastore-core/memory';
@@ -14,7 +14,7 @@ const CID2 = require('cids');
 const multihashing = require('multihashing-async')
 var sjcl = require('randombytes');
 
-const cidi = Uint8Array.from([
+const bytes = Uint8Array.from([
   1, 112, 18, 32, 195, 196, 115, 62, 200, 175, 253, 6, 207, 158, 159, 245, 15,
   252, 107, 205, 46, 200, 90, 97, 112, 0, 75, 183, 9, 102, 156, 49, 222, 148,
   57, 26,
@@ -24,11 +24,12 @@ const time = new Date();
 const rng = {randomBytes: sjcl};
 function App() {
     //
+    const [datastore, setDatastore] = useState({});
 
     const store = new MemoryBlockStore();
     const store2 = new Blockstore();
     const store3 = new BlockstoreDatastoreAdapter(new MemoryDatastore());
-    const store4 = {data:{}};
+    const store4 = {};
 
     store.putBlock = (cid, data) => {
       console.log({cid: cid, data: data});
@@ -55,19 +56,18 @@ function App() {
     }
 
     store4.putBlock = async (data, codec, options=null) => {
-      let hash = await sha256.digest(data)
-      let cid = CID.create(1, json.code, hash)
-
       const hash2 = await multihashing(data, 'sha2-256')
-      let cid2 = new CID2(1, 'dag-cbor', hash2);
-      store4.data[cid2] = data;
-      let validateCid = CID2.validateCID(cid2);
-      console.log("dir",{original: {codec: codec, data: data, options:options}, cid: cid2, cidstring: cid2.toString(), validateCid:validateCid});
-      return cid2.toString();
+      let cid2 = new CID2(1, codec, hash2);
+      let tempstate = {};
+      tempstate[cid2.toString()] = data;
+      setDatastore({...datastore, tempstate});
+      CID2.validateCID(cid2);
+      console.log("put",{original: {codec: codec, data: data, options:options}, cid: cid2, cidstring: cid2.toString(),});
+      return cid2;
     }
     store4.getBlock = (cid, options=null) => {
       console.log("get",{cid: cid, options:options});
-      return store4.data[cid];
+      return datastore[cid.toString()];
     }
 
     
@@ -84,7 +84,7 @@ function App() {
           console.log("rootDir", rootDir);
           var { rootDir } = await rootDir.write(
             ["pictures", "cats", "tabby.png"],
-            cidi,
+            bytes,
             new Date(),
             store4
           );
@@ -96,8 +96,9 @@ function App() {
         //PRIVATE TEST
         console.log("START OF PRIVATE TEST");
         var hamt = await new PrivateForest();
-        console.log("initialHamt", hamt);
-        const dir = await new PrivateDirectory(await new Namefilter(), new Date(), rng);
+        var namefilter = await new Namefilter();
+        console.log("initial parameters", {"hamt":hamt, "namefilter": namefilter});
+        const dir = await new PrivateDirectory(namefilter, new Date(), rng);
         var { rootDir, hamt } = await dir.mkdir(
           ["pictures", "cats"],
           true,
@@ -112,7 +113,7 @@ function App() {
         
         fetchData();
        });
- }, [store4]);
+ }, []);
     
   return (
     <div className="App">
