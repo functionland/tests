@@ -52,14 +52,10 @@ func ExamplePool_DiscoverPeersViaPubSub() {
 		panic(err)
 	}
 	defer n1.Shutdown(ctx)
-	fmt.Printf("Instantiated node in pool %s with ID: %s\n", poolName, h1.ID().String())
+	fmt.Printf("Instantiated node1 (mobile Fotos app) in pool %s with ID: %s\n", poolName, h1.ID().String())
 
-	// Instantiate the second node in the pool
-	pid2, _, err := crypto.GenerateECDSAKeyPair(rng)
-	if err != nil {
-		panic(err)
-	}
-	h2, err := libp2p.New(libp2p.Identity(pid2))
+	// Instantiate the second node in the pool with the same peerId of node 1
+	h2, err := libp2p.New(libp2p.Identity(pid1))
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +67,7 @@ func ExamplePool_DiscoverPeersViaPubSub() {
 		panic(err)
 	}
 	defer n2.Shutdown(ctx)
-	fmt.Printf("Instantiated node in pool %s with ID: %s\n", poolName, h2.ID().String())
+	fmt.Printf("Instantiated node2 (mobile Files app) in pool %s with ID: %s\n", poolName, h2.ID().String())
 
 	// Instantiate the third node in the pool
 	pid3, _, err := crypto.GenerateECDSAKeyPair(rng)
@@ -90,25 +86,24 @@ func ExamplePool_DiscoverPeersViaPubSub() {
 		panic(err)
 	}
 	defer n3.Shutdown(ctx)
-	fmt.Printf("Instantiated node in pool %s with ID: %s\n", poolName, h3.ID().String())
+	fmt.Printf("Instantiated node3 (Blox) in pool %s with ID: %s\n", poolName, h3.ID().String())
 
-	// Connect n1 to n2 and n3 so that there is a path for gossip propagation.
-	// Note that we are not connecting n2 to n3 as they should discover
+	// Connect n1 and n2 (both same peerId, to mimic two apps on same device) to n3 (blox) so that there is a path for gossip propagation.
 	// each other via pool's iexist announcements.
-	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), peerstore.PermanentAddrTTL)
-	if err = h1.Connect(ctx, peer.AddrInfo{ID: h2.ID(), Addrs: h2.Addrs()}); err != nil {
+	h1.Peerstore().AddAddrs(h3.ID(), h3.Addrs(), peerstore.PermanentAddrTTL)
+	if err = h1.Connect(ctx, peer.AddrInfo{ID: h3.ID(), Addrs: h3.Addrs()}); err != nil {
 		panic(err)
 	}
-	h1.Peerstore().AddAddrs(h3.ID(), h3.Addrs(), peerstore.PermanentAddrTTL)
+	h2.Peerstore().AddAddrs(h3.ID(), h3.Addrs(), peerstore.PermanentAddrTTL)
 	if err = h1.Connect(ctx, peer.AddrInfo{ID: h3.ID(), Addrs: h3.Addrs()}); err != nil {
 		panic(err)
 	}
 
 	// Wait until the nodes discover each other
 	for {
-		if len(h1.Peerstore().Peers()) == 3 &&
-			len(h2.Peerstore().Peers()) == 3 &&
-			len(h3.Peerstore().Peers()) == 3 {
+		if len(h1.Peerstore().Peers()) >= 2 &&
+			len(h2.Peerstore().Peers()) >= 2 &&
+			len(h3.Peerstore().Peers()) >= 2 {
 			break
 		}
 		select {
@@ -188,14 +183,14 @@ func ExamplePool_ExchangeDagBetweenPoolNodes() {
 		panic(err)
 	}
 	defer n1.Shutdown(ctx)
-	fmt.Printf("Instantiated node in pool %s with ID: %s\n", poolName, h1.ID().String())
+	fmt.Printf("Instantiated node1 in pool %s with ID: %s\n", poolName, h1.ID().String())
 
 	// Instantiate the second node in the pool
-	pid2, _, err := crypto.GenerateECDSAKeyPair(rng)
+	/*pid2, _, err := crypto.GenerateECDSAKeyPair(rng)
 	if err != nil {
 		panic(err)
-	}
-	h2, err := libp2p.New(libp2p.Identity(pid2))
+	}*/
+	h2, err := libp2p.New(libp2p.Identity(pid1))
 	if err != nil {
 		panic(err)
 	}
@@ -207,7 +202,7 @@ func ExamplePool_ExchangeDagBetweenPoolNodes() {
 		panic(err)
 	}
 	defer n2.Shutdown(ctx)
-	fmt.Printf("Instantiated node in pool %s with ID: %s\n", poolName, h2.ID().String())
+	fmt.Printf("Instantiated node2 in pool %s with ID: %s\n", poolName, h2.ID().String())
 
 	// Connect n1 to n2.
 	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), peerstore.PermanentAddrTTL)
@@ -294,5 +289,5 @@ func ExamplePool_ExchangeDagBetweenPoolNodes() {
 }
 
 func main() {
-	ExamplePool_ExchangeDagBetweenPoolNodes()
+	ExamplePool_DiscoverPeersViaPubSub()
 }
